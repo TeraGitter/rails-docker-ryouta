@@ -1,0 +1,28 @@
+version: '3'
+services: 
+  # DBサービス
+  db:
+    image: mysql:8.0
+    command: 
+      # 認証形式の指定
+      --default-authentication-plugin=mysql_native_password
+    volumes: 
+      # local:docker directory(ファイル同期)
+      - ./src/db/mysql_data:/var/lib/mysql
+    environment: 
+      # MySQLのパスワード
+      MYSQL_ROOT_PASSWORD: password
+  # web service
+  web:
+    build: .
+    # railsサーバーの起動 b '0.0.0.0'　…　IPアドレスは任意でOK
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    #ファイル同期
+    volumes: 
+     # - ./src/app
+     - ./src:/app
+    ports: # local:docker
+      - "3000:3000"
+    # DBサービスに依存 … DBと書くだけでDB接続ができる
+    depends_on: 
+      - db
